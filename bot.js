@@ -21,6 +21,12 @@ client.on('message', message => {
 
     }
 
+    if (message.content === prefix + 'help') {
+
+        message.channel.send('test');
+ 
+     }
+
 });
 
  
