@@ -5,6 +5,43 @@ const client = new Discord.Client();
 
 const prefix = "!";
 
+function getMoviesByGenre(message) {
+  let infos = message.content.split(' ');
+  console.log(infos)
+
+  Axios.get("https://api.themoviedb.org/3/discover/movie", {
+    params: {
+      api_key: "6d48337cf81398c13b598048ae81c942",
+      sort_by: "popularity.desc",
+      with_genres: infos[1],
+      page: 1,
+    },
+  }).then(
+    (response) => {
+    let page = Math.floor(Math.random() * response.data.total_pages) + 1;
+    Axios.get("https://api.themoviedb.org/3/discover/movie", {
+        params: {
+          api_key: "6d48337cf81398c13b598048ae81c942",
+          sort_by: "popularity.desc",
+          with_genres: infos[1],
+          page: page,
+        },
+      }).then(
+        (response) => {
+          movie = response.data.results[Math.floor(Math.random() * 20) + 1];
+          getMoviebyID(message, movie.id);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    },
+    (error) => {
+      console.log(error);
+    }
+  );
+}
+
 function getGenresIDs(message) {
   let color = Math.floor(Math.random() * 16777215).toString(16);
 
@@ -14,7 +51,6 @@ function getGenresIDs(message) {
     },
   }).then(
     (response) => {
-      console.log(response.data);
       let movie = response.data;
       const exampleEmbed = new Discord.MessageEmbed()
         .setColor("#" + color)
@@ -25,7 +61,7 @@ function getGenresIDs(message) {
         .setTimestamp();
 
       response.data.genres.map((e) =>
-        exampleEmbed.addFields({ name: e.id, value: e.name, inline: true })
+        exampleEmbed.addFields({ name: e.name, value: e.id, inline: true })
       );
       message.channel.send(exampleEmbed);
     },
@@ -44,7 +80,6 @@ function getMoviebyID(message, id) {
     },
   }).then(
     (response) => {
-      console.log(response.data);
       let movie = response.data;
       const exampleEmbed = new Discord.MessageEmbed()
         .setColor("#" + color)
@@ -166,7 +201,9 @@ client.on("message", (message) => {
       getGenresIDs(message);
     }
 
-    
+    if (valid[0] === prefix + "movieg") {
+      getMoviesByGenre(message);
+    }
   }
 });
 
