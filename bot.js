@@ -357,6 +357,4 @@ client.on("message", (message) => {
 
 // THIS  MUST  BE  THIS  WAY
 
-// client.login(process.env.BOT_TOKEN);//where BOT_TOKEN is the token of our bot
-
-client.login("NTk2MzE0MTIwODU3NDUyNTQ0.XR3uzQ.NcT9HqA7YE7vvoAhLFUxEi3N0v8");
+client.login(process.env.BOT_TOKEN);//where BOT_TOKEN is the token of our bo
