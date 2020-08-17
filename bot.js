@@ -5,9 +5,88 @@ const client = new Discord.Client();
 
 const prefix = "!";
 
-function getMoviesByGenre(message) {
-  let infos = message.content.split(' ');
+function getActorByID(message) {
+  let color = Math.floor(Math.random() * 16777215).toString(16);
+  let infos = message.content.split(" ");
+
+  Axios.get("https://api.themoviedb.org/3/person/" + infos[1], {
+    params: {
+      api_key: "6d48337cf81398c13b598048ae81c942",
+    },
+  }).then(
+    (response) => {
+      let actor = response.data;
+      const exampleEmbed = new Discord.MessageEmbed()
+        .setColor("#" + color)
+        .setTitle(actor.name)
+        .setThumbnail(
+          actor.profile_path !== null
+            ? "https://image.tmdb.org/t/p/w500" + actor.profile_path
+            : "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQhLJpjNWUbfgLTQqQHZQvty9w4iKHoPkpbHg&usqp=CAU"
+        )
+        .addFields(
+          { name: "Also Known as", value: actor.also_known_as },
+          {
+            name: "Birthday",
+            value: actor.birthday,
+            inline: true,
+          },
+          { name: "Place of birth", value: actor.place_of_birth, inline: true },
+          { name: "Popularity", value: actor.popularity, inline: true }
+        )
+        .setTimestamp();
+
+      message.channel.send(exampleEmbed);
+    },
+    (error) => {
+      console.log(error);
+      message.channel.send("Invalid command usage or invalid actor id. Type !help for more info.");
+    }
+  );
+}
+
+function searchActors(message) {
+  message.content = message.content.split("'").join('"');
+  let infos = message.content.split('"');
   console.log(infos)
+  let color = Math.floor(Math.random() * 16777215).toString(16);
+
+  Axios.get("https://api.themoviedb.org/3/search/person", {
+    params: {
+      api_key: "6d48337cf81398c13b598048ae81c942",
+      query: infos[1],
+      page: 1,
+    },
+  }).then(
+    (response) => {
+      let actors = response.data.results;
+      const exampleEmbed = new Discord.MessageEmbed()
+        .setColor("#" + color)
+        .setDescription(
+          "Use these IDs with movie search command. Type **!help movie** for more info."
+        )
+        .setTitle("📄 Actors IDs")
+        .setTimestamp();
+
+      actors.map((e) =>
+        exampleEmbed.addFields({ name: e.name, value: e.id, inline: true })
+      );
+      exampleEmbed.addField("\u200B", "**!actor ID** for more detailed info.");
+      message.channel.send(exampleEmbed);
+    },
+    (error) => {
+      console.log(error);
+      message.channel.send("Invalid command usage. Type !help for more info.");
+    }
+  );
+}
+
+function getMoviesByGenre(message) {
+  let infos = message.content.split(" ");
+  if (infos.length < 2) {
+    message.channel.send("You have to give me a genre id. Use **!genres** to check all genres available.");
+    return 0;
+  }
 
   Axios.get("https://api.themoviedb.org/3/discover/movie", {
     params: {
@@ -18,8 +97,8 @@ function getMoviesByGenre(message) {
     },
   }).then(
     (response) => {
-    let page = Math.floor(Math.random() * response.data.total_pages) + 1;
-    Axios.get("https://api.themoviedb.org/3/discover/movie", {
+      let page = Math.floor(Math.random() * response.data.total_pages) + 1;
+      Axios.get("https://api.themoviedb.org/3/discover/movie", {
         params: {
           api_key: "6d48337cf81398c13b598048ae81c942",
           sort_by: "popularity.desc",
@@ -29,15 +108,69 @@ function getMoviesByGenre(message) {
       }).then(
         (response) => {
           movie = response.data.results[Math.floor(Math.random() * 20) + 1];
-          getMoviebyID(message, movie.id);
+          try {
+            getMoviebyID(message, movie.id);
+          } catch (error) {
+            message.channel.send('Invalid genre id. Use **!genres** to check all genres available.');
+          }
         },
         (error) => {
           console.log(error);
+          message.channel.send("Invalid command usage. Type !help for more info.");
         }
       );
     },
     (error) => {
       console.log(error);
+      message.channel.send("Invalid command usage. Type !help for more info.");
+    }
+  );
+}
+
+function getMoviesByActor(message) {
+  let infos = message.content.split(" ");
+
+  if (infos.length < 2) {
+    message.channel.send('You have to give me an actor id. Use **!actors "name"** to check actors ids');
+    return 0;
+  }
+
+  Axios.get("https://api.themoviedb.org/3/discover/movie", {
+    params: {
+      api_key: "6d48337cf81398c13b598048ae81c942",
+      sort_by: "popularity.desc",
+      with_people: infos[1],
+      page: 1,
+    },
+  }).then(
+    (response) => {
+      let page = Math.floor(Math.random() * response.data.total_pages) + 1;
+      Axios.get("https://api.themoviedb.org/3/discover/movie", {
+        params: {
+          api_key: "6d48337cf81398c13b598048ae81c942",
+          sort_by: "popularity.desc",
+          with_people: infos[1],
+          page: page,
+        },
+      }).then(
+        (response) => {
+          movie = response.data.results[Math.floor(Math.random() * response.data.results.length) + 1];
+          try {
+            getMoviebyID(message, movie.id);
+          } catch (error) {
+            message.channel.send('Invalid actor id. Use **!actors "name"** to check actors ids');
+          }
+          
+        },
+        (error) => {
+          console.log(error);
+          message.channel.send("Invalid command usage. Type !help for more info.");
+        }
+      );
+    },
+    (error) => {
+      console.log(error);
+      message.channel.send("Invalid command usage. Type !help for more info.");
     }
   );
 }
@@ -67,6 +200,7 @@ function getGenresIDs(message) {
     },
     (error) => {
       console.log(error);
+      message.channel.send("Invalid command usage. Type !help for more info.");
     }
   );
 }
@@ -108,6 +242,7 @@ function getMoviebyID(message, id) {
     },
     (error) => {
       console.log(error);
+      message.channel.send("Invalid command usage. Type !help for more info.");
     }
   );
 }
@@ -123,7 +258,7 @@ function getRandomMovie(message) {
     },
   }).then(
     (response) => {
-      movie = response.data.results[Math.floor(Math.random() * 20) + 1];
+      movie = response.data.results[Math.floor(Math.random() * response.data.results.length) + 1];
       getMoviebyID(message, movie.id);
     },
     (error) => {
@@ -155,6 +290,7 @@ client.on("message", (message) => {
 
     if (valid[0] === prefix + "imdb") {
       let msg = message.content.split(" ");
+      message.content = message.content.split("'").join('"');
       let infos = message.content.split('"');
       let color = Math.floor(Math.random() * 16777215).toString(16);
 
@@ -201,8 +337,20 @@ client.on("message", (message) => {
       getGenresIDs(message);
     }
 
+    if (valid[0] === prefix + "actors") {
+      searchActors(message);
+    }
+
     if (valid[0] === prefix + "movieg") {
       getMoviesByGenre(message);
+    }
+
+    if (valid[0] === prefix + "moviea") {
+      getMoviesByActor(message);
+    }
+
+    if (valid[0] === prefix + "actor") {
+      getActorByID(message);
     }
   }
 });
