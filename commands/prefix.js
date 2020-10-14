@@ -10,7 +10,7 @@ function setPrefix(message, args) {
     fs.writeFile('./config.json', JSON.stringify(config), function writeJSON(err) {
     if (err) return console.log(err);
     console.log(JSON.stringify(config));
-    console.log('writing to ' + configPath);
+    message.channel.send('Changed global prefix to ' + args[0]);
 });
 }
 
