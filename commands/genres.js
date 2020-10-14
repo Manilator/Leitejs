@@ -31,8 +31,8 @@ const Discord = require("discord.js");
   }
 
 module.exports = {
-  name: "movieg",
-  description: "Random movie!",
+  name: "genres",
+  description: "Genres List!",
   execute(message, args) {
     getGenresIDs(message);
   },
