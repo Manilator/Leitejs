@@ -13,7 +13,7 @@ for (const file of commandFiles) {
   client.commands.set(command.name, command);
 }
 
-const prefix = "!";
+const prefix = "/";
 
 client.on("ready", () => {
   console.log("Bot started.");
