@@ -38,5 +38,8 @@ client.on("message", (message) => {
     }
 });
 
-client.login(process.env.BOT_TOKEN);//where BOT_TOKEN is the token of our bot
+//client.login(process.env.BOT_TOKEN);//where BOT_TOKEN is the token of our bot
+
+client.login('NTk2MzE0MTIwODU3NDUyNTQ0.XR3uzQ.NcT9HqA7YE7vvoAhLFUxEi3N0v8');
+
 
