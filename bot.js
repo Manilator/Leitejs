@@ -1,6 +1,7 @@
 const fs = require("fs");
 const Discord = require("discord.js");
 const { default: Axios } = require("axios");
+const config = require('./config.json');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -13,7 +14,7 @@ for (const file of commandFiles) {
   client.commands.set(command.name, command);
 }
 
-const prefix = "/";
+const prefix = config.prefix;
 
 client.on("ready", () => {
   console.log("Bot started.");
@@ -37,5 +38,8 @@ client.on("message", (message) => {
     }
 });
 
-client.login(process.env.BOT_TOKEN);//where BOT_TOKEN is the token of our bot
+//client.login(process.env.BOT_TOKEN);//where BOT_TOKEN is the token of our bot
+
+client.login('NTk2MzE0MTIwODU3NDUyNTQ0.XR3uzQ.NcT9HqA7YE7vvoAhLFUxEi3N0v8');
+
 
