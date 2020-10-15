@@ -23,7 +23,7 @@ function howGay(message, args) {
         fs.writeFile('./data/howgay.json', JSON.stringify(data), function writeJSON(err) {
             if (err) return console.log(err);
             console.log(JSON.stringify(data));
-            message.channel.send(`${mention} ${percentage} '% gay.`);
+            message.channel.send(`${mention} ${percentage}% gay.`);
         });
     }
     /*
